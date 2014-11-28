@@ -12,6 +12,8 @@
 		01A1BCFF1A287AE400C38628 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01A1BCFE1A287AE400C38628 /* Images.xcassets */; };
 		01A1BD021A287AE400C38628 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 01A1BD001A287AE400C38628 /* MainMenu.xib */; };
 		01A1BD0E1A287AE400C38628 /* WritLargeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BD0D1A287AE400C38628 /* WritLargeTests.m */; };
+		01A1BD1A1A287D9E00C38628 /* LargeTextWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BD191A287D9E00C38628 /* LargeTextWindow.m */; };
+		01A1BD231A287EE500C38628 /* LargeTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BD221A287EE500C38628 /* LargeTextView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,11 @@
 		01A1BD071A287AE400C38628 /* WritLargeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WritLargeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A1BD0C1A287AE400C38628 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A1BD0D1A287AE400C38628 /* WritLargeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WritLargeTests.m; sourceTree = "<group>"; };
+		01A1BD171A287AFA00C38628 /* WritLarge.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = WritLarge.entitlements; sourceTree = "<group>"; };
+		01A1BD181A287D9E00C38628 /* LargeTextWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LargeTextWindow.h; sourceTree = "<group>"; };
+		01A1BD191A287D9E00C38628 /* LargeTextWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LargeTextWindow.m; sourceTree = "<group>"; };
+		01A1BD211A287EE500C38628 /* LargeTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LargeTextView.h; sourceTree = "<group>"; };
+		01A1BD221A287EE500C38628 /* LargeTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LargeTextView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,11 +83,16 @@
 		01A1BCF61A287AE400C38628 /* WritLarge */ = {
 			isa = PBXGroup;
 			children = (
+				01A1BD171A287AFA00C38628 /* WritLarge.entitlements */,
 				01A1BCF91A287AE400C38628 /* AppDelegate.h */,
 				01A1BCFA1A287AE400C38628 /* AppDelegate.m */,
 				01A1BCFE1A287AE400C38628 /* Images.xcassets */,
 				01A1BD001A287AE400C38628 /* MainMenu.xib */,
 				01A1BCF71A287AE400C38628 /* Supporting Files */,
+				01A1BD181A287D9E00C38628 /* LargeTextWindow.h */,
+				01A1BD191A287D9E00C38628 /* LargeTextWindow.m */,
+				01A1BD211A287EE500C38628 /* LargeTextView.h */,
+				01A1BD221A287EE500C38628 /* LargeTextView.m */,
 			);
 			path = WritLarge;
 			sourceTree = "<group>";
@@ -160,6 +172,11 @@
 				TargetAttributes = {
 					01A1BCF31A287AE400C38628 = {
 						CreatedOnToolsVersion = 6.1;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
 					};
 					01A1BD061A287AE400C38628 = {
 						CreatedOnToolsVersion = 6.1;
@@ -210,6 +227,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01A1BD1A1A287D9E00C38628 /* LargeTextWindow.m in Sources */,
+				01A1BD231A287EE500C38628 /* LargeTextView.m in Sources */,
 				01A1BCFD1A287AE400C38628 /* main.m in Sources */,
 				01A1BCFB1A287AE400C38628 /* AppDelegate.m in Sources */,
 			);
@@ -325,6 +344,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WritLarge/WritLarge.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = WritLarge/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -336,6 +356,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WritLarge/WritLarge.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = WritLarge/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

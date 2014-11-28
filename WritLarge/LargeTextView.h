@@ -1,5 +1,5 @@
 //
-//  AppDelegate.h
+//  LargeTextView.h
 //  WritLarge
 //
 //  Created by Nicholas Moore on 28/11/2014.
@@ -8,8 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
-
+@interface LargeTextView : NSView
 
 @end
-
