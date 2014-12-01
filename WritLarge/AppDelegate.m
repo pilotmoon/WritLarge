@@ -65,7 +65,7 @@
     
     LargeTextWindow *const window=[[LargeTextWindow alloc] init];
     [window setDelegate:self];
-    [window showWithText:text style:FullScreen];
+    [window showWithText:text style:FullScreenStyle];
     self.window=window;
 }
 
