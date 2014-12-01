@@ -172,6 +172,7 @@
 				TargetAttributes = {
 					01A1BCF31A287AE400C38628 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 6W6K75YWQ9;
 						SystemCapabilities = {
 							com.apple.Sandbox = {
 								enabled = 1;
@@ -345,6 +346,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = WritLarge/WritLarge.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = WritLarge/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -357,6 +359,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = WritLarge/WritLarge.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = WritLarge/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

@@ -10,4 +10,7 @@
 
 @interface LargeTextWindow : NSPanel
 
+- (void)showWithText:(NSString *)text inBounds:(NSRect)bounds;
+- (void)showWithText:(NSString *)text;
+
 @end

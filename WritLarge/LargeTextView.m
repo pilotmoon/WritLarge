@@ -18,4 +18,9 @@
     NSRectFill([self bounds]);
 }
 
+- (NSView *)hitTest:(NSPoint)aPoint
+{
+    return NSPointInRect(aPoint, [self frame]) ? self : nil;
+}
+
 @end

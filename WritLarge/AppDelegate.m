@@ -15,18 +15,23 @@
 
 @implementation AppDelegate
 
+// get the text to display, from command line or stdin
 - (NSString *)text
 {
+    NSString *result=@"";
     NSArray *const args=[[NSProcessInfo processInfo] arguments];
-    if ([args count]>1) {
-        // get arg if available
-        return args[1];
+    
+    if ([args count]>1) { // use command line
+        for (int i=1; i<[args count]; i++) { // concatenate all arguments
+            result = [[result stringByAppendingString:args[i]] stringByAppendingString:@" "];
+        }
     }
-    else {
-        // get text from stdin
+    else { // use stdin
         NSLog(@"Reading text from stdin. ^D to end.");
-        return [[NSString alloc] initWithData:[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        result=[[NSString alloc] initWithData:[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile] encoding:NSASCIIStringEncoding];
     }
+    
+    return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 - (void)quit
@@ -38,8 +43,12 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    NSString *const text=[[self text] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    
+    NSString * text=[self text];
+//        NSString *const text=@"A";
+//    NSString *const text=@"Abacus";
+//    NSString *const text=@"Abacus chris morris";
+//    NSString *const text=@"Abacus chris morris has a programme called on the hour hello hello";
+    text=@"Abacus chris morris has a\nprogramme called on the hour hello hello";
     if ([text length]>0) {
         NSLog(@"Text supplied:\n%@", text);
         [self showWindowWithText:text];
@@ -50,24 +59,20 @@
     }
 }
 
-- (void)showWindowWithText:(NSString *)text
-{
-    LargeTextWindow *const window=[[LargeTextWindow alloc] init];
-    [window setDelegate:self];
-    [window setFrame:NSMakeRect(100, 100, 700, 700) display:NO];
-    [window center];
-
-    NSLog(@"Showing large text window.");
-    [window makeKeyAndOrderFront:self];
-    self.window=window;
-}
-
-#pragma mark Window delegate methods
-
 - (void)windowDidResignKey:(NSNotification *)notification
 {
     [self.window orderOut:self];
     [self quit];
+}
+
+- (void)showWindowWithText:(NSString *)text
+{
+    NSLog(@"Showing large text window.");
+    
+    LargeTextWindow *const window=[[LargeTextWindow alloc] init];
+    [window setDelegate:self];
+    [window showWithText:text];
+    self.window=window;
 }
 
 @end
