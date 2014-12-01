@@ -64,7 +64,6 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
 - (void)showWithText:(NSString *)text
 {
     const NSPoint mousePoint=[NSEvent mouseLocation];
-
     const NSRect mouseZone=NSMakeRect(mousePoint.x-0.5, mousePoint.y-0.5, 1, 1);
 
     NSRect frame=NSZeroRect;
@@ -81,7 +80,7 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
 // the bounds should be the bounds of the screen you want to show it on
 - (void)showWithText:(NSString *)text inBounds:(NSRect)bounds
 {
-    const CGFloat padding=20, margin=50, minFontSize=40;
+    const CGFloat padding=25, margin=50, minFontSize=40;
     
     // maximum rendered text size, given our bounds
     const NSSize maxDisplaySize=NSMakeSize(bounds.size.width-margin*2-padding*2, bounds.size.height-margin*2-padding*2);
