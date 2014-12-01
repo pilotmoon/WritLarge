@@ -46,7 +46,6 @@
     NSString *text=[self text];
     if ([text length]>0) {
         NSLog(@"Text supplied:\n%@", text);
-        [NSApp activateIgnoringOtherApps:YES]; // seems needed for 10.6
         [self showWindowWithText:text];
     }
     else {
@@ -55,9 +54,8 @@
     }
 }
 
-- (void)windowDidResignKey:(NSNotification *)notification
+- (void)windowWillClose:(NSNotification *)notification
 {
-    [self.window fadeOut];
     [self quit];
 }
 
@@ -67,7 +65,7 @@
     
     LargeTextWindow *const window=[[LargeTextWindow alloc] init];
     [window setDelegate:self];
-    [window showWithText:text];
+    [window showWithText:text style:FullScreen];
     self.window=window;
 }
 

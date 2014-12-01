@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface LargeTextView : NSView
-@property CGFloat padding;
 @property NSAttributedString *text;
+@property NSRect textFrame;
+@property CGFloat radius;
 @end

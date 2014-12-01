@@ -17,6 +17,12 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
                       (container.size.height-box.height)*0.5+container.origin.y, box.width, box.height);
 }
 
+static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
+{
+    return _rectForCenteredBoxInFrame(box,
+                                      NSMakeRect(0, 0, container.width, container.height));
+}
+
 @implementation LargeTextWindow
 
 - (id)init
@@ -29,7 +35,7 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
         [self setOpaque:NO];
         [self setHasShadow:NO];
         [self setBackgroundColor:[NSColor clearColor]];
-        [self setLevel:NSModalPanelWindowLevel];
+        [self setLevel:NSScreenSaverWindowLevel];
         [self setContentView:[[LargeTextView alloc] initWithFrame:NSZeroRect]];        
         return self;
     }
@@ -61,7 +67,7 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
 }
 
 // automatically calculates the bounds
-- (void)showWithText:(NSString *)text
+- (void)showWithText:(NSString *)text style:(LargeTextStyle)style
 {
     const NSPoint mousePoint=[NSEvent mouseLocation];
     const NSRect mouseZone=NSMakeRect(mousePoint.x-0.5, mousePoint.y-0.5, 1, 1);
@@ -69,18 +75,19 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
     NSRect frame=NSZeroRect;
     // reverse order so main screen is last, in case no rect contains the mouse somehow
     for (NSScreen *s in [[NSScreen screens] reverseObjectEnumerator]) {
-        frame=[s visibleFrame];
-        if (NSIntersectsRect([s frame], mouseZone)) {
+        frame=[s frame];
+        if (NSIntersectsRect(frame, mouseZone)) {
             break;
         }
     }
-    [self showWithText:text inBounds:frame];
+    [self showWithText:text inBounds:frame style:style];
 }
 
 // the bounds should be the bounds of the screen you want to show it on
-- (void)showWithText:(NSString *)text inBounds:(NSRect)bounds
+- (void)showWithText:(NSString *)text inBounds:(NSRect)bounds style:(LargeTextStyle)style
 {
-    const CGFloat padding=25, margin=50, minFontSize=40;
+    const BOOL fullScreenStyle=style==FullScreenStyle;
+    const CGFloat padding=25, margin=fullScreenStyle?0:50, minFontSize=40;
     
     // maximum rendered text size, given our bounds
     const NSSize maxDisplaySize=NSMakeSize(bounds.size.width-margin*2-padding*2, bounds.size.height-margin*2-padding*2);
@@ -114,10 +121,11 @@ static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
     NSLog(@"Calculated font size: %@, display size: %@", @(fontSize), NSStringFromSize(displaySize));
     
     // prepare the window
-    const NSRect windowRect=NSInsetRect(_rectForCenteredBoxInFrame(displaySize, bounds), -padding, -padding);
-    [self setFrame:windowRect display:NO];
+    const NSRect windowFrame=fullScreenStyle?bounds:NSInsetRect(_rectForCenteredBoxInFrame(displaySize, bounds), -padding, -padding);
+    [self setFrame:windowFrame display:NO];
     ((LargeTextView *)[self contentView]).text=[[NSAttributedString alloc] initWithString:text attributes:attributesForSize(fontSize)];
-    ((LargeTextView *)[self contentView]).padding=padding;
+    ((LargeTextView *)[self contentView]).textFrame=_rectForCenteredBoxInBox(displaySize, windowFrame.size);
+    ((LargeTextView *)[self contentView]).radius=fullScreenStyle?0:MAX(fontSize/6, 10);
 
     // fade in
     [self fadeIn];
