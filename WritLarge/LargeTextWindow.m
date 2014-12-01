@@ -87,7 +87,7 @@ static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
 - (void)showWithText:(NSString *)text inBounds:(NSRect)bounds style:(LargeTextStyle)style
 {
     const BOOL fullScreenStyle=style==FullScreenStyle;
-    const CGFloat padding=25, margin=fullScreenStyle?0:50, minFontSize=40;
+    const CGFloat padding=25, margin=fullScreenStyle?0:50, minFontSize=40, maxFontSize=450;
     
     // maximum rendered text size, given our bounds
     const NSSize maxDisplaySize=NSMakeSize(bounds.size.width-margin*2-padding*2, bounds.size.height-margin*2-padding*2);
@@ -116,7 +116,7 @@ static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
     // calculate font size and display size, scaling up to make best use of the screen
     const NSSize referenceSize=sizeCalc(minFontSize);
     const CGFloat scale=MIN(maxDisplaySize.width/referenceSize.width, maxDisplaySize.height/referenceSize.height);
-    const CGFloat fontSize=MIN(floor(minFontSize*scale),450);
+    const CGFloat fontSize=MIN(floor(minFontSize*scale),maxFontSize);
     const NSSize displaySize=sizeCalc(fontSize);
     NSLog(@"Calculated font size: %@, display size: %@", @(fontSize), NSStringFromSize(displaySize));
     
