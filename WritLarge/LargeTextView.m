@@ -15,7 +15,7 @@
 {
     // draw background
     NSBezierPath *path=[NSBezierPath bezierPathWithRoundedRect:[self bounds] xRadius:self.radius yRadius:self.radius];
-    [[NSColor colorWithCalibratedWhite:0 alpha:0.8] set];
+    [[NSColor colorWithCalibratedWhite:0 alpha:0.9] set];
     [path fill];
     
     // render text

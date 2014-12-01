@@ -116,7 +116,7 @@ static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
     // calculate font size and display size, scaling up to make best use of the screen
     const NSSize referenceSize=sizeCalc(minFontSize);
     const CGFloat scale=MIN(maxDisplaySize.width/referenceSize.width, maxDisplaySize.height/referenceSize.height);
-    const CGFloat fontSize=MIN(floor(minFontSize*scale),400);
+    const CGFloat fontSize=MIN(floor(minFontSize*scale),450);
     const NSSize displaySize=sizeCalc(fontSize);
     NSLog(@"Calculated font size: %@, display size: %@", @(fontSize), NSStringFromSize(displaySize));
     
