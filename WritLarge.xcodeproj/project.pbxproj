@@ -27,13 +27,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0181EF4B1A2CC7FC0022C85A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		01A1BCF41A287AE400C38628 /* WritLarge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WritLarge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A1BCF81A287AE400C38628 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A1BCF91A287AE400C38628 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		01A1BCFA1A287AE400C38628 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		01A1BCFC1A287AE400C38628 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		01A1BCFE1A287AE400C38628 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		01A1BD011A287AE400C38628 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		01A1BD071A287AE400C38628 /* WritLargeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WritLargeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A1BD0C1A287AE400C38628 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A1BD0D1A287AE400C38628 /* WritLargeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WritLargeTests.m; sourceTree = "<group>"; };
@@ -191,7 +191,6 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 			);
 			mainGroup = 01A1BCEB1A287AE400C38628;
 			productRefGroup = 01A1BCF51A287AE400C38628 /* Products */;
@@ -257,7 +256,7 @@
 		01A1BD001A287AE400C38628 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				01A1BD011A287AE400C38628 /* Base */,
+				0181EF4B1A2CC7FC0022C85A /* en */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -299,7 +298,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -335,7 +334,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
@@ -422,6 +421,7 @@
 				01A1BD131A287AE400C38628 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		01A1BD141A287AE400C38628 /* Build configuration list for PBXNativeTarget "WritLargeTests" */ = {
 			isa = XCConfigurationList;
@@ -430,6 +430,7 @@
 				01A1BD161A287AE400C38628 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

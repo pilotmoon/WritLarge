@@ -7,7 +7,7 @@
 //
 
 #import "LargeTextView.h"
-
+#import "LargeTextWindow.h"
 
 @implementation LargeTextView
 
@@ -15,7 +15,12 @@
     [super drawRect:dirtyRect];
     
     [[NSColor colorWithCalibratedWhite:0 alpha:0.8] set];
-    NSRectFill([self bounds]);
+    NSFont *font=[self.text attributesAtIndex:0 effectiveRange:nil][NSFontAttributeName];
+    const CGFloat radius=MAX([font capHeight]/5, 10);
+    NSBezierPath *path=[NSBezierPath bezierPathWithRoundedRect:[self bounds] xRadius:radius yRadius:radius];
+    [path fill];
+    
+    [self.text drawWithRect:NSInsetRect([self bounds], self.padding, self.padding) options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingTruncatesLastVisibleLine];
 }
 
 - (NSView *)hitTest:(NSPoint)aPoint

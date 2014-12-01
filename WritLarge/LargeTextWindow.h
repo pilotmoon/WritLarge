@@ -12,5 +12,5 @@
 
 - (void)showWithText:(NSString *)text inBounds:(NSRect)bounds;
 - (void)showWithText:(NSString *)text;
-
+- (void)fadeOut;
 @end

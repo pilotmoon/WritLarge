@@ -8,19 +8,13 @@
 
 #import "LargeTextWindow.h"
 #import "LargeTextView.h"
-#import <Carbon/Carbon.h>
+#import <Carbon/Carbon.h> // for kVK_Escape
 
-
-/* Return inner rect centered in outer rect */
-NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
+// Calculate inner rect centered in outer rect
+static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
 {
-    return NSMakeRect((container.size.width-box.width)*0.5+container.origin.x, (container.size.height-box.height)*0.5+container.origin.y, box.width, box.height);
-}
-
-/* Return inner rect centered in outer rect */
-NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
-{
-    return _rectForCenteredBoxInFrame(box, NSMakeRect(0, 0, container.width, container.height));
+    return NSMakeRect((container.size.width-box.width)*0.5+container.origin.x,
+                      (container.size.height-box.height)*0.5+container.origin.y, box.width, box.height);
 }
 
 @implementation LargeTextWindow
@@ -47,13 +41,13 @@ NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
 - (void)keyDown:(NSEvent *)theEvent
 {
     if ([theEvent keyCode]==kVK_Escape) {
-        [self orderOut:self];
+        [self fadeOut];
     }
 }
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
-    [self orderOut:self];
+    [self fadeOut];
 }
 
 - (BOOL)canBecomeKeyWindow
@@ -65,8 +59,6 @@ NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
 {
     return NO;
 }
-
-
 
 // automatically calculates the bounds
 - (void)showWithText:(NSString *)text
@@ -89,98 +81,68 @@ NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
 // the bounds should be the bounds of the screen you want to show it on
 - (void)showWithText:(NSString *)text inBounds:(NSRect)bounds
 {
-
-    const CGFloat padding=0;
-    const CGFloat border=50;
-
-    const CGFloat maxBoxHeight=bounds.size.height-border*2;
-    const CGFloat maxBoxWidth=bounds.size.width-border*2;
+    const CGFloat padding=20, margin=50, minFontSize=40;
     
-    // the font
-  const CGFloat referenceFontSize=100;
-    const CGFloat minBoxHeight=50;
-  NSFont *const referenceFont=[NSFont systemFontOfSize:referenceFontSize];
+    // maximum rendered text size, given our bounds
+    const NSSize maxDisplaySize=NSMakeSize(bounds.size.width-margin*2-padding*2, bounds.size.height-margin*2-padding*2);
     
-    // calculate font size
-    const NSSize referenceSize=[text sizeWithAttributes:@{NSFontAttributeName: referenceFont}];
-    CGFloat ratio=maxBoxWidth/referenceSize.width;
-    const CGFloat scaledHeight=referenceSize.height*ratio;
-    if (scaledHeight<minBoxHeight) {
-        ratio*=minBoxHeight/scaledHeight;
-    }
-    else if (scaledHeight>maxBoxHeight) {
-        ratio*=maxBoxHeight/scaledHeight;
-    }
-    const CGFloat fontSize=floor(referenceFontSize*ratio);
-//    
-//    CGFloat fontSize;
-//    for (fontSize=24; fontSize<500; fontSize++) {
-//        NSSize textSize=[text sizeWithAttributes:@{NSFontAttributeName: [NSFont systemFontOfSize:fontSize+1]}];
-//        if (textSize.width>maxBoxWidth||textSize.height>maxBoxHeight) {
-//            break;
-//        }
-//    }
+    // helper routine to get the full text attributes for a given font size
+    NSDictionary *(^attributesForSize)(CGFloat)=^NSDictionary *(CGFloat fontSize) {
+        NSMutableParagraphStyle *const style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location==NSNotFound) {
+            [style setAlignment:NSCenterTextAlignment];
+        }
+        [style setLineBreakMode:NSLineBreakByWordWrapping];
+        return @{NSFontAttributeName: [NSFont systemFontOfSize:fontSize],
+                 NSForegroundColorAttributeName: [NSColor whiteColor],
+                 NSParagraphStyleAttributeName: style};
+    };
     
+    // helper block to calculate the rendered text size for a given font size
+    NSSize (^sizeCalc)(CGFloat) = ^NSSize(CGFloat fontSize) {
+        NSSize size=[text boundingRectWithSize:maxDisplaySize
+                                  options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingTruncatesLastVisibleLine
+                               attributes:attributesForSize(fontSize)].size;
+        size.width+=fontSize*0.3;
+        return size;
+    };
     
-    NSFont *const font=[NSFont systemFontOfSize:fontSize];
+    // calculate font size and display size, scaling up to make best use of the screen
+    const NSSize referenceSize=sizeCalc(minFontSize);
+    const CGFloat scale=MIN(maxDisplaySize.width/referenceSize.width, maxDisplaySize.height/referenceSize.height);
+    const CGFloat fontSize=MIN(floor(minFontSize*scale),400);
+    const NSSize displaySize=sizeCalc(fontSize);
+    NSLog(@"Calculated font size: %@, display size: %@", @(fontSize), NSStringFromSize(displaySize));
     
-    // calculate display width
-    const CGFloat displayWidth=[text sizeWithAttributes:@{NSFontAttributeName: font}].width*1.0;
-    NSLog(@"Calculated font size: %@, display width: %@", @(fontSize), @(displayWidth));
-    
-    // create attributed string for display
-    NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    [style setAlignment:NSCenterTextAlignment];
-    [style setLineBreakMode:NSLineBreakByWordWrapping];
-    NSAttributedString *as=[[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName: font,
-                                                                                        NSForegroundColorAttributeName: [NSColor whiteColor],
-                                                                                        NSParagraphStyleAttributeName: style}];
-    
-    // create a text view for layout calculations
-    NSTextView *textView=[[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, displayWidth, 0)];
-    [textView setEditable:NO];
-    [textView setSelectable:NO];
-    [textView setDrawsBackground:NO];
-    [[textView textStorage] setAttributedString:as];
-    [textView sizeToFit];
-    
-    // get number of lines in text (see https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/TextLayout/Tasks/CountLines.html)
-    NSLayoutManager *const layoutManager=[textView layoutManager];
-    const NSUInteger numberOfGlyphs=[layoutManager numberOfGlyphs];
-    NSUInteger numberOfLines=0;
-    CGFloat heightNeeded=0;
-    for (NSUInteger index=0; index<numberOfGlyphs; numberOfLines++) {
-        NSRange lineRange;
-        const NSRect rect=[layoutManager lineFragmentRectForGlyphAtIndex:index effectiveRange:&lineRange];
-        heightNeeded+=NSHeight(rect);
-        index=NSMaxRange(lineRange);
-    }
-    
-    NSLog(@"number of lines %@", @(numberOfLines));
-    
-    // calculate text frame
-    NSRect textFrame=[textView frame];
-    textFrame.size.height=MIN(maxBoxHeight, heightNeeded);
-    textFrame.size.width+=2;
-    [textView setFrame:textFrame];
-    
-    // size the window
-    NSRect windowRect=_rectForCenteredBoxInFrame(textFrame.size, bounds);
-    windowRect=NSInsetRect(windowRect, -padding, -padding);
+    // prepare the window
+    const NSRect windowRect=NSInsetRect(_rectForCenteredBoxInFrame(displaySize, bounds), -padding, -padding);
     [self setFrame:windowRect display:NO];
-    NSLog(@"window frame %@", NSStringFromRect([self frame]));
-    
-    // place the text view in the window
-    NSLog(@"textframe %@", NSStringFromRect(textFrame));
-    
-    [textView setFrame:_rectForCenteredBoxInBox(textFrame.size, windowRect.size)];
-    [[self contentView] addSubview:textView];
-    NSLog(@"textview frame %@", NSStringFromRect([textView frame]));
-    
-    [self setAlphaValue:0];
-    [self makeKeyAndOrderFront:self];
-    [[self animator] setAlphaValue:1.0];
+    ((LargeTextView *)[self contentView]).text=[[NSAttributedString alloc] initWithString:text attributes:attributesForSize(fontSize)];
+    ((LargeTextView *)[self contentView]).padding=padding;
+
+    // fade in
+    [self fadeIn];
 }
 
+- (void)fadeIn {
+    const NSTimeInterval duration=0.2;
+    [self setAlphaValue:0];
+    [self makeKeyAndOrderFront:self];
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:duration];
+    [[self animator] setAlphaValue:1.0];
+    [NSAnimationContext endGrouping];
+}
+
+- (void)fadeOut {
+    const NSTimeInterval duration=0.1;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*duration+0.1), dispatch_get_main_queue(), ^{
+        [self orderOut:self];
+    });
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:duration];
+    [[self animator] setAlphaValue:0.0];
+    [NSAnimationContext endGrouping];
+}
 
 @end
