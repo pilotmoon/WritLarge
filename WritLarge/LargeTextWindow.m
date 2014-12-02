@@ -54,11 +54,6 @@ static NSRect _centerBox(NSSize box, NSSize container)
     return YES;
 }
 
-- (BOOL)canBecomeMainWindow
-{
-    return NO;
-}
-
 #pragma mark Fade in/out
 
 - (void)fadeAlpha:(CGFloat)alpha duration:(NSTimeInterval)duration after:(void (^)(void))after
