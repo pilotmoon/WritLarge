@@ -8,14 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef NS_ENUM(NSUInteger, LargeTextStyle) {
-    BarStyle=0,
-    FullScreenStyle
-};
-
 @interface LargeTextWindow : NSPanel
-
-- (void)showWithText:(NSString *)text inBounds:(NSRect)bounds style:(LargeTextStyle)style;
-- (void)showWithText:(NSString *)text style:(LargeTextStyle)style;
-- (void)fadeOut;
+- (void)showWithText:(NSString *)text;
 @end

@@ -18,20 +18,15 @@
 // get the text to display, from command line or stdin
 - (NSString *)text
 {
-    NSString *result=@"";
     NSArray *const args=[[NSProcessInfo processInfo] arguments];
     
     if ([args count]>1) { // use command line
-        for (int i=1; i<[args count]; i++) { // concatenate all arguments
-            result = [[result stringByAppendingString:args[i]] stringByAppendingString:@" "];
-        }
+        return args[1];
     }
     else { // use stdin
         NSLog(@"Reading text from stdin. ^D to end.");
-        result=[[NSString alloc] initWithData:[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        return [[NSString alloc] initWithData:[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile] encoding:NSASCIIStringEncoding];
     }
-    
-    return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 - (void)quit
@@ -42,31 +37,24 @@
     });
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    NSString *text=[self text];
-    if ([text length]>0) {
-        NSLog(@"Text supplied:\n%@", text);
-        [self showWindowWithText:text];
-    }
-    else {
-        NSLog(@"No text supplied.");
-        [self quit];
-    }
-}
-
 - (void)windowWillClose:(NSNotification *)notification
 {
     [self quit];
 }
 
-- (void)showWindowWithText:(NSString *)text
-{
-    NSLog(@"Showing large text window.");
-    
-    LargeTextWindow *const window=[[LargeTextWindow alloc] init];
-    [window setDelegate:self];
-    [window showWithText:text style:FullScreenStyle];
-    self.window=window;
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    NSString *const text=[[self text] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([text length]>0) {
+        NSLog(@"Showing large text window.");
+        
+        self.window=[[LargeTextWindow alloc] init];
+        [self.window setDelegate:self];
+        [self.window showWithText:text];
+    }
+    else {
+        NSLog(@"No text supplied.");
+        [self quit];
+    }
 }
 
 @end

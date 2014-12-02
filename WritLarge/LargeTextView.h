@@ -11,5 +11,4 @@
 @interface LargeTextView : NSView
 @property NSAttributedString *text;
 @property NSRect textFrame;
-@property CGFloat radius;
 @end

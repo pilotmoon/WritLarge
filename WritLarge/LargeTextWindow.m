@@ -10,17 +10,10 @@
 #import "LargeTextView.h"
 #import <Carbon/Carbon.h> // for kVK_Escape
 
-// Calculate inner rect centered in outer rect
-static NSRect _rectForCenteredBoxInFrame(NSSize box, NSRect container)
+static NSRect _centerBox(NSSize box, NSSize container)
 {
-    return NSMakeRect((container.size.width-box.width)*0.5+container.origin.x,
-                      (container.size.height-box.height)*0.5+container.origin.y, box.width, box.height);
-}
-
-static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
-{
-    return _rectForCenteredBoxInFrame(box,
-                                      NSMakeRect(0, 0, container.width, container.height));
+    return NSMakeRect((container.width-box.width)*0.5,
+                      (container.height-box.height)*0.5, box.width, box.height);
 }
 
 @implementation LargeTextWindow
@@ -66,35 +59,61 @@ static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
     return NO;
 }
 
-// automatically calculates the bounds
-- (void)showWithText:(NSString *)text style:(LargeTextStyle)style
+#pragma mark Fade in/out
+
+- (void)fadeAlpha:(CGFloat)alpha duration:(NSTimeInterval)duration after:(void (^)(void))after
+{
+    if (after) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*duration+0.1), dispatch_get_main_queue(), ^{
+            after();
+        });
+    }
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:duration];
+    [[self animator] setAlphaValue:alpha];
+    [NSAnimationContext endGrouping];
+}
+
+- (void)fadeIn {
+    [self setAlphaValue:0];
+    [self makeKeyAndOrderFront:self];
+    [self fadeAlpha:1 duration:0.2 after:nil];
+}
+
+- (void)fadeOut {
+    [self fadeAlpha:0 duration:0.1 after:^{
+        [self close];
+    }];
+}
+
+#pragma mark Window drawing
+
+// automatically calculates the bounds based on the screen the mouse is in
+- (void)showWithText:(NSString *)text
 {
     const NSPoint mousePoint=[NSEvent mouseLocation];
     const NSRect mouseZone=NSMakeRect(mousePoint.x-0.5, mousePoint.y-0.5, 1, 1);
 
     NSRect frame=NSZeroRect;
-    // reverse order so main screen is last, in case no rect contains the mouse somehow
     for (NSScreen *s in [[NSScreen screens] reverseObjectEnumerator]) {
         frame=[s frame];
         if (NSIntersectsRect(frame, mouseZone)) {
             break;
         }
     }
-    [self showWithText:text inBounds:frame style:style];
+    
+    [self showWithText:text inFrame:frame];
 }
 
 // the bounds should be the bounds of the screen you want to show it on
-- (void)showWithText:(NSString *)text inBounds:(NSRect)bounds style:(LargeTextStyle)style
+- (void)showWithText:(NSString *)text inFrame:(NSRect)frame
 {
-    const BOOL fullScreenStyle=style==FullScreenStyle;
-    const CGFloat padding=25, margin=fullScreenStyle?0:50, minFontSize=40, maxFontSize=450;
+    const CGFloat padding=25, minFontSize=40, maxFontSize=450;
+    const NSSize maxDisplaySize=NSMakeSize(frame.size.width-padding*2, frame.size.height-padding*2);
     
-    // maximum rendered text size, given our bounds
-    const NSSize maxDisplaySize=NSMakeSize(bounds.size.width-margin*2-padding*2, bounds.size.height-margin*2-padding*2);
-    
-    // helper routine to get the full text attributes for a given font size
+    // get the full text attributes for a given font size
     NSDictionary *(^attributesForSize)(CGFloat)=^NSDictionary *(CGFloat fontSize) {
-        NSMutableParagraphStyle *const style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        NSMutableParagraphStyle *const style=[[NSParagraphStyle defaultParagraphStyle] mutableCopy];
         if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location==NSNotFound) {
             [style setAlignment:NSCenterTextAlignment];
         }
@@ -104,52 +123,25 @@ static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
                  NSParagraphStyleAttributeName: style};
     };
     
-    // helper block to calculate the rendered text size for a given font size
+    // calculate the rendered text size for a given font size
     NSSize (^sizeCalc)(CGFloat) = ^NSSize(CGFloat fontSize) {
         NSSize size=[text boundingRectWithSize:maxDisplaySize
-                                  options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingTruncatesLastVisibleLine
-                               attributes:attributesForSize(fontSize)].size;
-        size.width+=fontSize*0.3;
+                                       options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingTruncatesLastVisibleLine
+                                    attributes:attributesForSize(fontSize)].size;
+        size.width+=fontSize*0.3; // fudge factor
         return size;
     };
     
-    // calculate font size and display size, scaling up to make best use of the screen
+    // calculate font size
     const NSSize referenceSize=sizeCalc(minFontSize);
     const CGFloat scale=MIN(maxDisplaySize.width/referenceSize.width, maxDisplaySize.height/referenceSize.height);
-    const CGFloat fontSize=MIN(floor(minFontSize*scale),maxFontSize);
-    const NSSize displaySize=sizeCalc(fontSize);
-    NSLog(@"Calculated font size: %@, display size: %@", @(fontSize), NSStringFromSize(displaySize));
+    const CGFloat fontSize=MIN(floor(minFontSize*scale), maxFontSize);
     
     // prepare the window
-    const NSRect windowFrame=fullScreenStyle?bounds:NSInsetRect(_rectForCenteredBoxInFrame(displaySize, bounds), -padding, -padding);
-    [self setFrame:windowFrame display:NO];
+    [self setFrame:frame display:NO];
     ((LargeTextView *)[self contentView]).text=[[NSAttributedString alloc] initWithString:text attributes:attributesForSize(fontSize)];
-    ((LargeTextView *)[self contentView]).textFrame=_rectForCenteredBoxInBox(displaySize, windowFrame.size);
-    ((LargeTextView *)[self contentView]).radius=fullScreenStyle?0:MAX(fontSize/6, 10);
-
-    // fade in
+    ((LargeTextView *)[self contentView]).textFrame=_centerBox(sizeCalc(fontSize), frame.size);
     [self fadeIn];
-}
-
-- (void)fadeIn {
-    const NSTimeInterval duration=0.2;
-    [self setAlphaValue:0];
-    [self makeKeyAndOrderFront:self];
-    [NSAnimationContext beginGrouping];
-    [[NSAnimationContext currentContext] setDuration:duration];
-    [[self animator] setAlphaValue:1.0];
-    [NSAnimationContext endGrouping];
-}
-
-- (void)fadeOut {
-    const NSTimeInterval duration=0.1;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*duration+0.1), dispatch_get_main_queue(), ^{
-        [self close];
-    });
-    [NSAnimationContext beginGrouping];
-    [[NSAnimationContext currentContext] setDuration:duration];
-    [[self animator] setAlphaValue:0.0];
-    [NSAnimationContext endGrouping];
 }
 
 @end

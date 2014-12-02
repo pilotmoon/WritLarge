@@ -7,19 +7,18 @@
 //
 
 #import "LargeTextView.h"
-#import "LargeTextWindow.h"
 
 @implementation LargeTextView
 
 - (void)drawRect:(NSRect)dirtyRect
 {
     // draw background
-    NSBezierPath *path=[NSBezierPath bezierPathWithRoundedRect:[self bounds] xRadius:self.radius yRadius:self.radius];
     [[NSColor colorWithCalibratedWhite:0 alpha:0.85] set];
-    [path fill];
+    NSRectFill([self bounds]);
     
     // render text
-    [self.text drawWithRect:self.textFrame options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingTruncatesLastVisibleLine];
+    [self.text drawWithRect:self.textFrame
+                    options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingTruncatesLastVisibleLine];
 }
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
