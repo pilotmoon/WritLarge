@@ -144,7 +144,7 @@ static NSRect _rectForCenteredBoxInBox(NSSize box, NSSize container)
 - (void)fadeOut {
     const NSTimeInterval duration=0.1;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*duration+0.1), dispatch_get_main_queue(), ^{
-        [self orderOut:self];
+        [self close];
     });
     [NSAnimationContext beginGrouping];
     [[NSAnimationContext currentContext] setDuration:duration];
